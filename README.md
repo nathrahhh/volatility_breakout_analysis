@@ -1,60 +1,139 @@
-Volatility Breakout Strategy Analysis – Sisyphus Paradigm
+Volatility Breakout Strategy — ATR-Based Backtest (Python)
 Overview
 
-This repository contains a Python implementation and analysis of a volatility breakout trading strategy. The work is inspired by Chapter 3 of Advances in Financial Machine Learning (AFML) and illustrates the Sisyphus paradigm: plausible trading strategies that appear promising but fail to generate persistent alpha due to noise, costs, and sparse opportunities.
+This repository contains a Python implementation and analysis of a simple ATR-based volatility breakout strategy using daily OHLCV data.
 
-The strategy uses Average True Range (ATR) to identify volatility breakouts, constructs positions, computes net strategy returns including transaction costs, and evaluates performance under different regimes.
+The goal of this project is not to “find alpha”, but to demonstrate a clean research workflow including:
 
-Files
+Feature engineering (ATR)
 
-volatility_breakout.ipynb – Jupyter notebook containing:
+Signal construction
 
-Feature engineering (ATR calculation, daily range)
+Position management
 
-Signal generation (volatility breakout)
+Transaction cost modelling
+
+Performance evaluation and diagnostics
+
+Regime-based robustness checks
+
+The strategy is intentionally simple and is used as a case study for understanding why many intuitive strategies fail after costs.
+
+Strategy Summary
+
+The strategy uses Average True Range (ATR) as a volatility benchmark.
+
+Core logic
+
+Compute rolling ATR.
+
+Detect breakout days when the daily range exceeds a multiple of ATR.
+
+Enter a position (long/short) based on the breakout direction.
+
+Hold for a fixed number of days.
+
+Apply transaction costs and evaluate net performance.
+
+Repository Structure
+
+volatility_breakout.ipynb
+Main notebook containing the full pipeline:
+
+Data loading
+
+ATR calculation
+
+Signal generation
 
 Position construction
 
-Strategy returns calculation
+Backtest returns + transaction costs
 
-Equity curve plotting
+Diagnostics and robustness checks
 
-Histogram analysis of returns
+data/
+Contains CSV price data used for backtesting (e.g. SPY daily OHLCV).
 
-Robustness checks (high-volatility regime)
+Key Components
+1) Feature Engineering
 
-Markdown commentary and discussion of results
+ATR (rolling)
 
-data/ – CSV files with historical OHLCV (Open, High, Low, Close, Volume) data for backtesting.
+Daily range and returns
 
-Strategy Description
+2) Signal Generation
 
-ATR Calculation: Compute the rolling average true range to measure volatility.
+Signals are generated when volatility exceeds a threshold:
 
-Signal Generation: Enter long/short positions when the daily range exceeds a multiple of ATR.
+range > k × ATR
 
-Position Construction: Hold positions for a fixed number of days; overlapping signals are aggregated.
+3) Backtest & Execution Assumptions
 
-Strategy Returns: Apply lagged positions to daily asset returns, accounting for transaction costs.
+Positions are lagged to avoid lookahead bias.
 
-Robustness Checks: Examine performance in high-volatility regimes (ATR > 75th percentile).
+Fixed holding period.
 
-Results
+Transaction costs included (configurable).
 
-Equity Curve: Shows gradual decay with occasional spikes, indicating sparse profitable opportunities and persistent small losses.
+4) Diagnostics
 
-Return Distribution: High peak at zero, negative skew, rare positive returns.
+The notebook includes:
 
-High-Volatility Regime Analysis: Trading in high-vol periods increases frequency of signals but does not eliminate losses; demonstrates the structural limitations of the strategy.
+Equity curve
 
-Key Insights – The Sisyphus Paradigm
+Return distribution
 
-Most trading days yield negligible or slightly negative returns due to sparse signals and transaction costs.
+Drawdowns
 
-Occasional large gains appear as spikes in the equity curve, but they are insufficient to offset accumulated small losses.
+Trade frequency
 
-Conditioning on high-volatility periods changes the number of active trades but not the underlying expectancy.
+Performance breakdown by volatility regime
 
-The strategy highlights the difficulty of generating persistent alpha in noisy, mean-reverting markets: no matter how much effort is invested, performance is eroded — just like Sisyphus pushing the boulder uphill.
+Results (Summary)
 
+In the tested configuration, the strategy demonstrates a common research outcome:
 
+Sparse large gains occur occasionally.
+
+However, frequent small losses and transaction costs dominate.
+
+Conditioning on high-volatility regimes increases activity but does not reliably improve expectancy.
+
+This reinforces the importance of:
+
+realistic costs,
+
+avoiding overfitting,
+
+and testing across regimes.
+
+Notes / Limitations
+
+This project is intended as a research demonstration and not a deployable trading system.
+
+Possible extensions:
+
+parameter sweeps (k, ATR window, holding period)
+
+risk targeting / volatility scaling
+
+alternative breakout definitions
+
+multi-asset testing
+
+event filtering (earnings, macro releases)
+
+How to Run
+
+Clone the repository
+
+Install dependencies (typical stack: pandas, numpy, matplotlib)
+
+Run the notebook
+
+Author
+
+Nathrah Sharul Nizam
+(Quant research + structured backtesting focus)
+\
