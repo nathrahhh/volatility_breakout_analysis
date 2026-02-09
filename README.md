@@ -46,17 +46,17 @@ Contains CSV price data used for backtesting (e.g. SPY daily OHLCV).
 
 Key Components
 1) Feature Engineering
-ATR (rolling)
-Daily range and returns
+    ATR (rolling)
+    Daily range and returns
 
 2) Signal Generation
-Signals are generated when volatility exceeds a threshold:
-range > k × ATR
+    Signals are generated when volatility exceeds a threshold:
+    range > k × ATR
 
 3) Backtest & Execution Assumptions
-Positions are lagged to avoid lookahead bias.
-Fixed holding period.
-Transaction costs included (configurable).
+    Positions are lagged to avoid lookahead bias.
+    Fixed holding period.
+    Transaction costs included (configurable).
 
 4) Diagnostics
 The notebook includes:
