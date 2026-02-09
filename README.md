@@ -1,102 +1,66 @@
-Volatility Breakout Strategy — ATR-Based Backtest (Python)
-Overview
+# Volatility Breakout Backtest (SPY)
 
-This repository contains a Python implementation and analysis of a simple ATR-based volatility breakout strategy using daily OHLCV data.
+A lightweight research repo that implements a volatility breakout signal, converts signals into fixed-horizon positions, and evaluates performance under transaction costs and regime filters.
 
-The goal of this project is not to “find alpha”, but to demonstrate a clean research workflow including:
+This project is intentionally designed to be modular and readable, with feature engineering, signal generation, and backtesting separated into standalone Python modules.
 
-- Feature engineering (ATR)
-- Signal construction
-- Position management
-- Transaction cost modelling
-- Performance evaluation and diagnostics
-- Regime-based robustness checks
+# Project Overview
 
-The strategy is intentionally simple and is used as a case study for understanding why many intuitive strategies fail after costs.
+This strategy tests a simple hypothesis:
+  Large daily ranges relative to recent volatility (ATR) may signal short-     term directional continuation.
 
-Strategy Summary:
-The strategy uses Average True Range (ATR) as a volatility benchmark.
+The pipeline:
+- Compute volatility proxy using rolling ATR (high–low range)
+- Generate breakout signals when range exceeds k × ATR
+- Convert signals into positions held for a fixed horizon
+- Compute net strategy returns with proportional transaction costs
+- Run diagnostics + robustness checks (high-volatility regimes)
 
-Core logic:
-- Compute rolling ATR.
-- Detect breakout days when the daily range exceeds a multiple of ATR.
-- Enter a position (long/short) based on the breakout direction.
-- Hold for a fixed number of days.
-- Apply transaction costs and evaluate net performance.
-
-Repository Structure
-  
-  volatility_breakout.ipynb
-  Main notebook containing the full pipeline:
-  
-  Data loading
-  
-  ATR calculation
-  
-  Signal generation
-  
-  Position construction
-
-Backtest returns + transaction costs
-
-Diagnostics and robustness checks
-
+#Repo Structure
+src/
+  features.py        # ATR + volatility features
+  signals.py         # breakout signal logic
+  backtest.py        # position construction + returns + costs
+notebooks/
+  01_backtest_pipeline.ipynb
+  02_volatility_classifier.ipynb
 data/
-Contains CSV price data used for backtesting (e.g. SPY daily OHLCV).
+  spy_yahoo.csv
+README.md
 
-Key Components
-1) Feature Engineering
-   - ATR (rolling)
-   - Daily range and returns
+Note: notebooks are included for transparency and reproducibility.
+Core logic is implemented in src/ so the pipeline can run end-to-end without notebooks.
 
-2) Signal Generation
-   - Signals are generated when volatility exceeds a threshold:
-   - Range > k × ATR
+# Results Summary (High Level)
+The equity curve shows gradual decay with occasional positive spikes.
 
-3) Backtest & Execution Assumptions
-   - Positions are lagged to avoid lookahead bias.
-   - Fixed holding period.
-   - Transaction costs included (configurable).
+Key observations:
+- Strategy returns are centered near zero with a heavy left tail
+- Performance is strongly eroded by transaction costs and turnover
+- Conditioning on high-volatility regimes changes trade frequency but does     not generate a persistent edge
 
-4) Diagnostics
-The notebook includes:
-- Equity curve
-- Return distribution
-- Drawdowns
-- Trade frequency
-- Performance breakdown by volatility regime
-- Results (Summary)
+This outcome is consistent with the broader empirical difficulty of extracting robust alpha from noisy short-horizon signals in liquid equity indices.
 
-In the tested configuration, the strategy demonstrates a common research outcome:
-- Sparse large gains occur occasionally.
-- However, frequent small losses and transaction costs dominate.
-- Conditioning on high-volatility regimes increases activity but does not reliably improve expectancy.
+How to Run (End-to-End)
+1) Setup
+pip install numpy pandas matplotlib
 
-This reinforces the importance of:
-- realistic costs,
-- avoiding overfitting,
-- and testing across regimes.
+2) Run the backtest
 
-Notes / Limitations
-This project is intended as a research demonstration and not a deployable trading system.
+From repo root:
 
-Possible extensions:
-- parameter sweeps (k, ATR window, holding period)
-- risk targeting / volatility scaling
-- alternative breakout definitions
-- multi-asset testing
-- event filtering (earnings, macro releases)
+python -m src.backtest
 
-How to Run
+Notes on Design Choices
+- ATR is implemented as a rolling mean of daily range (High - Low) for         simplicity and transparency.
+-Signals are directionally determined using the sign of the open–close move   on breakout days.
+- Overlapping signals are aggregated linearly to reflect repeated exposure     during clustered breakouts.
+- Transaction costs are modeled as proportional to turnover (|Δposition|).
 
-Clone the repository
-
-Install dependencies (typical stack: pandas, numpy, matplotlib)
-
-Run the notebook
+Disclaimer
+This project is for research and educational purposes only.
+It is not investment advice and is not intended for live trading.
 
 Author
+Built by Nathrah as part of a personal quant research portfolio.
 
-Nathrah Sharul Nizam
-(Quant research + structured backtesting focus)
-\
